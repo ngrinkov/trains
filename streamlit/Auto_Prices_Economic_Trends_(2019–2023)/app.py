@@ -25,23 +25,27 @@ def load_data():
 
 df = load_data()
 
+
 # --- SIDEBAR ---
 st.sidebar.header("📅 Фильтр по дате")
 
-# Слайдер с выбором дат в формате 'MM.YYYY'
+# Преобразуем минимальную и максимальную дату в UNIX-время (целое число)
 min_date, max_date = df["Month/Year"].min(), df["Month/Year"].max()
 
-# Отображаем даты в формате 'MM.YYYY'
-date_range = st.sidebar.slider(
-    "Период", 
-    min_value=min_date, 
-    max_value=max_date, 
-    value=(min_date, max_date), 
-    format="MM.YYYY"
-)
+# Преобразуем даты в Unix timestamp (секунды с 1970 года)
+min_timestamp = min_date.timestamp()
+max_timestamp = max_date.timestamp()
 
-# Фильтрация данных по выбранному диапазону дат
-filtered_df = df[(df["Month/Year"] >= date_range[0]) & (df["Month/Year"] <= date_range[1])]
+# Слайдер принимает Unix timestamps (числа)
+date_range = st.sidebar.slider("Период", min_value=min_timestamp, max_value=max_timestamp,
+                               value=(min_timestamp, max_timestamp), format="MM.YYYY")
+
+# Преобразуем значения слайдера обратно в Timestamp
+start_date = pd.to_datetime(date_range[0], unit='s')
+end_date = pd.to_datetime(date_range[1], unit='s')
+
+# Фильтрация данных
+filtered_df = df[(df["Month/Year"] >= start_date) & (df["Month/Year"] <= end_date)]
 
 # --- HEADER ---
 st.title("🚗 Auto Prices & Economic Trends (2019–2023)")

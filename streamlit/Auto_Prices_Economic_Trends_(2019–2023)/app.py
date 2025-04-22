@@ -21,7 +21,6 @@ def load_data():
     df["Units Sold"] = pd.to_numeric(df["Units Sold"].str.replace('[,]', '', regex=True), errors='coerce').fillna(0)
     
     df["Year"] = df["Month/Year"].dt.year
-    df["Month_Year_str"] = df["Month/Year"].dt.strftime('%m.%Y')  # Добавляем колонку для фильтрации
     return df
 
 df = load_data()
@@ -29,21 +28,20 @@ df = load_data()
 # --- SIDEBAR ---
 st.sidebar.header("📅 Фильтр по дате")
 
-# Создаем список всех уникальных значений в формате 'MM.YYYY'
-month_years = pd.to_datetime(df["Month_Year_str"], format='%m.%Y')  # Преобразуем в даты
-month_years = month_years.sort_values().dt.strftime('%m.%Y').unique()  # Сортируем и возвращаем в формате 'MM.YYYY'
-
 # Слайдер с выбором дат в формате 'MM.YYYY'
+min_date, max_date = df["Month/Year"].min(), df["Month/Year"].max()
+
+# Отображаем даты в формате 'MM.YYYY'
 date_range = st.sidebar.slider(
     "Период", 
-    min_value=month_years[0], 
-    max_value=month_years[-1], 
-    value=(month_years[0], month_years[-1]), 
+    min_value=min_date, 
+    max_value=max_date, 
+    value=(min_date, max_date), 
     format="MM.YYYY"
 )
 
 # Фильтрация данных по выбранному диапазону дат
-filtered_df = df[df["Month_Year_str"].between(date_range[0], date_range[1])]
+filtered_df = df[(df["Month/Year"] >= date_range[0]) & (df["Month/Year"] <= date_range[1])]
 
 # --- HEADER ---
 st.title("🚗 Auto Prices & Economic Trends (2019–2023)")
@@ -79,7 +77,7 @@ st.bar_chart(filtered_df.set_index("Month/Year")["Units Sold"])
 
 # --- КОРРЕЛЯЦИЯ ---
 st.subheader("📊 Корреляционная матрица")
-corr = filtered_df.drop(columns=["Month/Year", "Year", "Month_Year_str"]).corr()
+corr = filtered_df.drop(columns=["Month/Year", "Year"]).corr()
 fig_corr, ax = plt.subplots(figsize=(8, 5))
 sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
 st.pyplot(fig_corr)

@@ -21,6 +21,7 @@ def load_data():
     df["Units Sold"] = pd.to_numeric(df["Units Sold"].str.replace('[,]', '', regex=True), errors='coerce').fillna(0)
     
     df["Year"] = df["Month/Year"].dt.year
+    df["Month_Year_str"] = df["Month/Year"].dt.strftime('%m.%Y')  # Добавляем колонку для фильтрации
     return df
 
 df = load_data()
@@ -28,23 +29,21 @@ df = load_data()
 # --- SIDEBAR ---
 st.sidebar.header("📅 Фильтр по дате")
 
-# Преобразуем минимальную и максимальную дату в UNIX-время (целое число)
-min_date, max_date = df["Month/Year"].min(), df["Month/Year"].max()
+# Создаем список всех уникальных значений в формате 'MM.YYYY'
+month_years = df["Month_Year_str"].unique()
+month_years.sort()  # Сортируем значения по дате
 
-# Преобразуем даты в Unix timestamp (секунды с 1970 года)
-min_timestamp = min_date.timestamp()
-max_timestamp = max_date.timestamp()
+# Слайдер с выбором дат в формате 'MM.YYYY'
+date_range = st.sidebar.slider(
+    "Период", 
+    min_value=month_years[0], 
+    max_value=month_years[-1], 
+    value=(month_years[0], month_years[-1]), 
+    format="MM.YYYY"
+)
 
-# Слайдер принимает Unix timestamps (числа)
-date_range = st.sidebar.slider("Период", min_value=min_timestamp, max_value=max_timestamp,
-                               value=(min_timestamp, max_timestamp), format="MM.YYYY")
-
-# Преобразуем значения слайдера обратно в Timestamp
-start_date = pd.to_datetime(date_range[0], unit='s')
-end_date = pd.to_datetime(date_range[1], unit='s')
-
-# Фильтрация данных
-filtered_df = df[(df["Month/Year"] >= start_date) & (df["Month/Year"] <= end_date)]
+# Фильтрация данных по выбранному диапазону дат
+filtered_df = df[df["Month_Year_str"].between(date_range[0], date_range[1])]
 
 # --- HEADER ---
 st.title("🚗 Auto Prices & Economic Trends (2019–2023)")
@@ -80,7 +79,7 @@ st.bar_chart(filtered_df.set_index("Month/Year")["Units Sold"])
 
 # --- КОРРЕЛЯЦИЯ ---
 st.subheader("📊 Корреляционная матрица")
-corr = filtered_df.drop(columns=["Month/Year", "Year"]).corr()
+corr = filtered_df.drop(columns=["Month/Year", "Year", "Month_Year_str"]).corr()
 fig_corr, ax = plt.subplots(figsize=(8, 5))
 sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
 st.pyplot(fig_corr)

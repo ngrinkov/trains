@@ -30,8 +30,8 @@ df = load_data()
 st.sidebar.header("📅 Фильтр по дате")
 
 # Создаем список всех уникальных значений в формате 'MM.YYYY'
-month_years = df["Month_Year_str"].unique()
-month_years.sort()  # Сортируем значения по дате
+month_years = pd.to_datetime(df["Month_Year_str"], format='%m.%Y')  # Преобразуем в даты
+month_years = month_years.sort_values().dt.strftime('%m.%Y').unique()  # Сортируем и возвращаем в формате 'MM.YYYY'
 
 # Слайдер с выбором дат в формате 'MM.YYYY'
 date_range = st.sidebar.slider(

@@ -7,7 +7,7 @@ st.set_page_config(page_title="🌸 Анализ Iris с Polars", layout="wide")
 st.title("🌸 Анализ набора данных Iris с помощью Polars")
 
 # Загружаем файл
-df = pl.read_csv("iris.csv")
+df = pl.read_csv("/mount/src/trains/streamlit/iris.csv")
 
 st.subheader("📄 Первые строки данных")
 st.dataframe(df.head(10).to_pandas())

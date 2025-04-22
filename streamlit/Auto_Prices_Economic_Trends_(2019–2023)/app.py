@@ -12,11 +12,14 @@ def load_data():
     df = pd.read_csv("/mount/src/trains/streamlit/Auto_Prices_Economic_Trends_(2019–2023)/automobile_prices_economics_2019_2023.csv") 
     df.columns = df.columns.str.strip()
     df["Month/Year"] = pd.to_datetime(df["Month/Year"], format="%y-%b")
-    df["New Price ($)"] = df["New Price ($)"].replace('[\$,]', '', regex=True).astype(float)
-    df["Used Price ($)"] = df["Used Price ($)"].replace('[\$,]', '', regex=True).astype(float)
-    df["Inflation Rate (%)"] = df["Inflation Rate (%)"].str.replace('%', '').astype(float)
-    df["Interest Rate (%)"] = df["Interest Rate (%)"].str.replace('%', '').astype(float)
-    df["Units Sold"] = df["Units Sold"].str.replace('[,]', '', regex=True).astype(int)
+    
+    # Обработка пропущенных значений
+    df["New Price ($)"] = df["New Price ($)"].replace('[\$,]', '', regex=True).astype(float, errors='coerce').fillna(0)
+    df["Used Price ($)"] = df["Used Price ($)"].replace('[\$,]', '', regex=True).astype(float, errors='coerce').fillna(0)
+    df["Inflation Rate (%)"] = df["Inflation Rate (%)"].str.replace('%', '').astype(float, errors='coerce').fillna(0)
+    df["Interest Rate (%)"] = df["Interest Rate (%)"].str.replace('%', '').astype(float, errors='coerce').fillna(0)
+    df["Units Sold"] = df["Units Sold"].str.replace('[,]', '', regex=True).astype(int, errors='coerce').fillna(0)
+    
     df["Year"] = df["Month/Year"].dt.year
     return df
 

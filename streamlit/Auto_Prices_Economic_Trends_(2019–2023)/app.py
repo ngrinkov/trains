@@ -13,17 +13,18 @@ def load_data():
     df.columns = df.columns.str.strip()
     df["Month/Year"] = pd.to_datetime(df["Month/Year"], format="%y-%b")
     
-    # Обработка пропущенных значений
-    df["New Price ($)"] = df["New Price ($)"].replace('[\$,]', '', regex=True).astype(float, errors='coerce').fillna(0)
-    df["Used Price ($)"] = df["Used Price ($)"].replace('[\$,]', '', regex=True).astype(float, errors='coerce').fillna(0)
-    df["Inflation Rate (%)"] = df["Inflation Rate (%)"].str.replace('%', '').astype(float, errors='coerce').fillna(0)
-    df["Interest Rate (%)"] = df["Interest Rate (%)"].str.replace('%', '').astype(float, errors='coerce').fillna(0)
-    df["Units Sold"] = df["Units Sold"].str.replace('[,]', '', regex=True).astype(int, errors='coerce').fillna(0)
+    # Использование pd.to_numeric для безопасного преобразования типов
+    df["New Price ($)"] = pd.to_numeric(df["New Price ($)"].replace(r'[\$,]', '', regex=True), errors='coerce').fillna(0)
+    df["Used Price ($)"] = pd.to_numeric(df["Used Price ($)"].replace(r'[\$,]', '', regex=True), errors='coerce').fillna(0)
+    df["Inflation Rate (%)"] = pd.to_numeric(df["Inflation Rate (%)"].str.replace('%', ''), errors='coerce').fillna(0)
+    df["Interest Rate (%)"] = pd.to_numeric(df["Interest Rate (%)"].str.replace('%', ''), errors='coerce').fillna(0)
+    df["Units Sold"] = pd.to_numeric(df["Units Sold"].str.replace('[,]', '', regex=True), errors='coerce').fillna(0)
     
     df["Year"] = df["Month/Year"].dt.year
     return df
 
 df = load_data()
+
 
 # --- SIDEBAR ---
 st.sidebar.header("📅 Фильтр по дате")

@@ -9,7 +9,7 @@ st.set_page_config(page_title="Auto Prices Dashboard", layout="wide", page_icon=
 # Загрузка и очистка данных
 @st.cache_data
 def load_data():
-    df = pd.read_csv("automobile_prices_economics_2019_2023.csv")
+    df = pd.read_csv("/mount/src/trains/streamlit/Auto_Prices_Economic_Trends_(2019–2023)/automobile_prices_economics_2019_2023.csv") 
     df.columns = df.columns.str.strip()
     df["Month/Year"] = pd.to_datetime(df["Month/Year"], format="%y-%b")
     df["New Price ($)"] = df["New Price ($)"].replace('[\$,]', '', regex=True).astype(float)

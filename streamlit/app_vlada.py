@@ -325,7 +325,6 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-Влада, [28.02.2026 23:38]
 with col2:
     st.markdown(f"""
     <div class='stat-card'>
